@@ -25,11 +25,6 @@ Welcome to the **ChE4K03-HelperRepo** — a support repository for students enro
    %cd ChE4K03-HelperRepo
 
 ### Option 2: Use on local device
-
-1. Open your code editor of choice (e.g. MS Visual Studio Code)
-
-###Option 2: Use Locally in Visual Studio Code
-
 1. Open your terminal or Git Bash.
 2. Clone the repository:
 
