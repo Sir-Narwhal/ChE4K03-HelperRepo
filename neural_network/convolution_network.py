@@ -9,34 +9,40 @@ import logging
 class RateLawEstimation(t.nn.Module): 
     def __init__(self): 
         super(RateLawEstimation, self).__init__() 
+
+        """
+        Neural Net Setup: 
+            1. x4 Layers
+                a. x1 Input (2 nodes)
+                b. x2 Hidden (5 nodes each) 
+                c. x1 Output (1 node) 
+            2. Activation Function: 
+                a. ReLU
+
+        Ideas for Neural Net Design Decisions: 
+            - Increase the # of nodes for hidden layers 
+            - Increase the # of hidden layers 
+            - Change Activation Function
+        """
+
         self.net = t.nn.Sequential(
-            t.nn.Linear(2, 128),   # First Layer
+            t.nn.Linear(2, 5),   # First to Second Layer            2 inputs to 5 nodes 
             t.nn.ReLU(),           # First Activation Fn
-            t.nn.Linear(128, 128), # Second Layer
+            t.nn.Linear(5, 5), # Second to Third Layer              5 nodes to 5 nodes 
             t.nn.ReLU(),           # Second Activation Fn
-            t.nn.Linear(128, 1)    # Last Layer
+            t.nn.Linear(5, 1)    # Third to Last Layer              5 nodes to 1 output
         )
+
     def forward(self, C: t.Tensor) -> t.Tensor:  
         r1 = self.net(C)
         return r1
 
 
-def get_data(csv_source:str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]: 
+def train_ratelaw_estimation(raw_data: Tuple[np.ndarray, ...]) -> RateLawEstimation: 
     """
     csv_source: str => location of data containing c1, c2, and r1
     """
-    _df = pd.read_csv(csv_source) 
-    c1 = _df.loc[:,"C_A1"].to_numpy()
-    c2 = _df.loc[:,"C_A2"].to_numpy()
-    r1 = _df.loc[:,"r_A1"].to_numpy() 
-    return c1, c2, r1
-
-
-def train_ratelaw_estimation(csv_source:str)->RateLawEstimation: 
-    """
-    csv_source: str => location of data containing c1, c2, and r1
-    """
-    c1, c2, r1 = get_data(csv_source) 
+    c1, c2, r1 = raw_data  
 
     r1 = t.tensor(r1, 
                   dtype=t.float32).view(-1, 1) 
@@ -62,7 +68,8 @@ def train_ratelaw_estimation(csv_source:str)->RateLawEstimation:
     
     return model 
 
-def estimate_model(model: RateLawEstimation, Cnew: Tuple[np.ndarray, np.ndarray]): 
+
+def estimate_model(model: RateLawEstimation, Cnew: Tuple[np.ndarray, np.ndarray]) -> np.ndarray: 
     (c1, c2) = Cnew
     Cnew = t.tensor(np.stack((c1.astype(np.float32), c2.astype(np.float32))).T, 
                  dtype=t.float32)
@@ -72,9 +79,4 @@ def estimate_model(model: RateLawEstimation, Cnew: Tuple[np.ndarray, np.ndarray]
     return predictions.numpy().T 
 
 
-if __name__ == "__main__": 
-    csv_source = r'.\data\K_0.2_dataset.csv'
-    trained_model = train_ratelaw_estimation(csv_source) 
-    
-    # estimate_model(trained_model)
 

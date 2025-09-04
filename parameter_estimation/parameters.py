@@ -4,33 +4,27 @@ from typing import Dict, List, Tuple
 from scipy.optimize import curve_fit
 
 
-def get_data(csv_source:str)->Tuple[np.ndarray, np.ndarray, np.ndarray]: 
+def rate_law(C: Tuple[float, float], k1: float, k2: float, k3: float, k4: float, k5: float) -> float: 
     """
-    csv_source: str => location of data containing c1, c2, and r1
+    Change this to your Equation for Parameter Estimation. 
+    Params: k1, k2, k3, k4, k5 (type: float)
     """
-    _df = pd.read_csv(csv_source) 
-    c1 = _df.loc[:,"C_A1"].to_numpy()
-    c2 = _df.loc[:,"C_A2"].to_numpy()
-    r1 = _df.loc[:,"r_A1"].to_numpy()
-    return c1, c2, r1
-
-
-def rate_law(C: Tuple[float, float], k1: float, k2: float)->float: 
     c1, c2 = C
-    return  (k1*c1)/(1+c1+k2*c2)
+    r1 = k1*c1 + k2*c2 + k3*c1*c2 + k4*c1**2 + k5*c2**2
+    return  r1
 
 
-def fit_data(csv_source:str) -> Tuple[float, float]: 
+def fit_data(raw_data: Tuple[np.ndarray, ...]) -> Tuple[float, ...]: 
     """
     csv_source: str => location of data containing c1, c2, and r1
     """
-    c1, c2, r1 = get_data(csv_source) 
-    params, _ = curve_fit(rate_law, (c1, c2), r1)     # Fit paramaeters here 
+    c1, c2, r1 = raw_data # => Use the function or import on your own 
+    params, _ = curve_fit(rate_law, (c1, c2), r1)     # Fit paramaeters here as an optimization problem 
+    return params # (k1, k2, etc.)
 
-    return params # (k1, k2)
 
 if __name__ == "__main__": 
-    """
+    """p
     PUT CODE HERE
     """
     print(f"blank print")
